@@ -11,7 +11,7 @@ def normalize_dawa_radio(flat_file, radio_file,
     first_image=None, last_image=None, 
     xshift=0, yshift=0, 
     dark_value=None, 
-    zinger_threshold=0, zinger_filter_size=None):
+    zinger_threshold=0, zinger_filter_size=3):
   logging.basicConfig(
     filename=radio_file + '_normalized.log',
     filemode='w',
@@ -53,8 +53,6 @@ def normalize_dawa_radio(flat_file, radio_file,
   logging.info("After normalizing, min: %f, max: %f", radio.min(), radio.max())
 
   if (zinger_threshold != 0):
-    if (zinger_filter_size == None):
-      zinger_filter_size = 3
     logging.info('Removing zingers. threshold:%f, size:%d', zinger_threshold, zinger_filter_size)
     radio = tomopy.misc.corr.remove_outlier(radio, zinger_threshold, size=zinger_filter_size)
     logging.info("After remove_outlier, min: %f, max: %f", radio.min(), radio.max())
@@ -84,7 +82,7 @@ if __name__ == "__main__":
                     help="dark field value")
   parser.add_argument("-t", "--zinger_threshold", type=float, default=0.2,
                     help="zinger threshold")
-  parser.add_argument("-s", "--zinger_filter_size", type=int,
+  parser.add_argument("-s", "--zinger_filter_size", type=int, default=3,
                     help="zinger filter_size")
   args = parser.parse_args()
   normalize_dawa_radio(args.flat_file, args.radiography_file, 
