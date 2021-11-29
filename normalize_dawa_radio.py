@@ -28,13 +28,16 @@ def normalize_dawa_radio(flat_file, radio_file,
   if (first_image != None):
     first = first_image
   with h5py.File(radio_file_name, "r") as f:
-    data = f['/exchange/data_white']
+    #    data = f['/exchange/data_white']
+    print('Reading /exchange/data')
+    data = f['/exchange/data']
     last = data.shape[0]
   if (last_image != None):
     last = last_image
   logging.info('first image: %d', first)
   logging.info('last image: %d', last)
-  radio = dxchange.read_hdf5(radio_file_name, '/exchange/data_white', slc=((first, last, 1), None))
+  #radio = dxchange.read_hdf5(radio_file_name, '/exchange/data_white', slc=((first, last, 1), None))
+  radio = dxchange.read_hdf5(radio_file_name, '/exchange/data', slc=((first, last, 1), None))
   if (xshift != 0):
     flat = np.roll(flat, xshift, axis=2)
   if (yshift != 0):
