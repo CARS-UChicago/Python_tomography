@@ -7,8 +7,8 @@ import argparse
 
 def preprocess_13bm(fname, dark_value=None, zinger_threshold=0.2, zinger_filter_size=3):
   logging.basicConfig(
-    filename=fname + '_preprocess.log',
-    filemode='w',
+    #filename=fname + '_preprocess.log',
+    #filemode='w',
     format='%(asctime)s %(levelname)-8s %(message)s',
     level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S')
