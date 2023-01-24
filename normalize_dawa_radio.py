@@ -28,16 +28,16 @@ def normalize_dawa_radio(flat_file, radio_file,
   if (first_image != None):
     first = first_image
   with h5py.File(radio_file_name, "r") as f:
-    #    data = f['/exchange/data_white']
+    data = f['/exchange/data_white']
+    #data = f['/exchange/data']
     print('Reading /exchange/data')
-    data = f['/exchange/data']
     last = data.shape[0]
   if (last_image != None):
     last = last_image
   logging.info('first image: %d', first)
   logging.info('last image: %d', last)
-  #radio = dxchange.read_hdf5(radio_file_name, '/exchange/data_white', slc=((first, last, 1), None))
-  radio = dxchange.read_hdf5(radio_file_name, '/exchange/data', slc=((first, last, 1), None))
+  radio = dxchange.read_hdf5(radio_file_name, '/exchange/data_white', slc=((first, last, 1), None))
+  #radio = dxchange.read_hdf5(radio_file_name, '/exchange/data', slc=((first, last, 1), None))
   if (xshift != 0):
     flat = np.roll(flat, xshift, axis=2)
   if (yshift != 0):
@@ -64,7 +64,7 @@ def normalize_dawa_radio(flat_file, radio_file,
   radio = (10000.*radio).astype(np.int16)
 
   logging.info('Writing normalized file')
-  dxchange.write_hdf5(radio, fname=radio_file + '_normalized.h5', overwrite=True)
+  dxchange.write_hdf5(radio, fname=radio_file + '_' + str(first) + '_' + str(last) + '_normalized.h5', overwrite=False)
   logging.info('Normalized file written')
 
 if __name__ == "__main__":
