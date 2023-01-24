@@ -34,26 +34,33 @@ def combine_vertical_stack(base_file, num_files, pixel_overlap,
   extensions = extensions.split()
   logging.info('Extensions = %s', extensions)
   logging.info('Reading file %s', file)
-  vol = read_tomo_volume(file)
-  nx = vol.shape[2]
-  ny = vol.shape[1]
-  nz = vol.shape[0]
-    
+  v = read_tomo_volume(file)
+  nx = v.shape[2]
+  ny = v.shape[1]
+  nz = v.shape[0]
+     
+  logging.info('Read file %s, dimensions=%d %d %d, datatype=%s', file, v.shape[0], v.shape[1], v.shape[2], v.dtype)
   nz_total = nz + (num_files-1) * (nz - pixel_overlap)
-  logging.info('Read file %s, dimensions=%d %d %d, datatype=%s', file, vol.shape[0], vol.shape[1], vol.shape[2], vol.dtype)
-  logging.info('Combined dimensions = %d %d %d', nz_total, ny, nx)
+  logging.info('Creating empty array, dimensions = %d %d %d', nz_total, ny, nx)
+  vol = np.empty((nz_total, ny, nx),dtype=v.dtype)
+  vol[0:nz,:,:] = v
   for i in np.arange(1, num_files):
     file = base_file + '_' + extensions[i] + 'recon' + suffix
     logging.info('Reading file %s', file)
     v = read_tomo_volume(file)
-    vol = np.insert(vol, (nz-pixel_overlap)*i, v, axis=0)
+    first_slice = (nz - pixel_overlap)*i
+    last_slice = first_slice + nz
+    if (zstart != 0):
+      first_slice += zstart
+      last_slice += zstart
+      v = v[zstart:, :, :]
+    logging.info('Inserting in volume array from slice %d to %d', first_slice, last_slice)
+    vol[first_slice:last_slice, :, :] = v
     #if (zstart ne 0) then begin
     #    zrange = [zstart, nz-1]
     #    vol[0, 0, (((nz-pixel_overlap)*i) + zstart)] = read_tomo_volume(base_file + '_' + extensions[i] + 'recon' + suffix, zrange=zrange)
-  logging.info('Trimming volume')
-  vol = vol[:nz_total, :, :]
   file = base_file + 'combined_recon' + suffix
-  logging.info('Writing combined volume %s dimensions=%d %d %d', file, vol.shape[0], vol.shape[1], vol.shape[2])
+  logging.info('Writing combined volume %s', file)
   write_tomo_volume(file, vol)
   logging.info('Done')
 
@@ -65,12 +72,12 @@ if __name__ == "__main__":
                     help="number of files")
   parser.add_argument("pixel_overlap", type=int,
                     help="number of overlappped pixels")
-  parser.add_argument("-z", "--zstart", type=int,
+  parser.add_argument("-z", "--zstart", type=int, default=0,
                     help="first z value in second and subsequent files (default=0)")
-  parser.add_argument("-s", "--suffix",
-                    help="file suffix (default='.h5'")
-  parser.add_argument("-e", "--extensions", 
-                    help="file extensions")
+  parser.add_argument("-s", "--suffix", default='.h5',
+                    help="file suffix (default='.h5')")
+  parser.add_argument("-e", "--extensions", default='A B C D E F G H I',
+                    help="file extensions (default='A B C D E F G H I')")
   args = parser.parse_args()
   combine_vertical_stack(args.base_file, args.num_files, 
       args.pixel_overlap, zstart=args.zstart, 
