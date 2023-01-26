@@ -15,6 +15,7 @@ def read_tomo_volume(file):
     arr = f.variables['VOLUME']
     arr.set_auto_scale(False)
     data = arr[()]
+    f.close()
   return data
 
 def write_tomo_volume(file, data):
@@ -43,6 +44,7 @@ def combine_vertical_stack(base_file, num_files, pixel_overlap,
   nz_total = nz + (num_files-1) * (nz - pixel_overlap)
   logging.info('Creating empty array, dimensions = %d %d %d', nz_total, ny, nx)
   vol = np.empty((nz_total, ny, nx),dtype=v.dtype)
+  logging.info('Inserting into volume array from slice %d to %d', 0, nz)
   vol[0:nz,:,:] = v
   for i in np.arange(1, num_files):
     file = base_file + '_' + extensions[i] + 'recon' + suffix
