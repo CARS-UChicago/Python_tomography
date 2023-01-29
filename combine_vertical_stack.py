@@ -26,8 +26,12 @@ def rebin(a, factor, func=None):
 
   new_shape = [n//f for n, f in zip(a.shape, factor)]+list(factor)
   new_strides = [s*f for s, f in zip(a.strides, factor)]+list(a.strides)
+  logging.info('a.dtype=%s, a.shape=%s, a.min()=%d, a.max()=%d', a.dtype, a.shape, a.min(), a.max())
   aa = as_strided(a, shape=new_shape, strides=new_strides)
-  return func(aa, axis=tuple(range(-dim, 0)),dtype=a.dtype)
+  logging.info('aa.dtype=%s, aa.shape=%s, aa.min()=%d, aa.max()=%d', aa.dtype, aa.shape, aa.min(), aa.max())
+  out = func(aa, axis=tuple(range(-dim, 0))).astype(a.dtype)
+  logging.info('out.dtype=%s, out.shape=%s, out.min()=%d, out.max()=%d', out.dtype, out.shape, out.min(), out.max())
+  return out
 
 def read_tomo_volume(file):
   if file.endswith('h5'):
